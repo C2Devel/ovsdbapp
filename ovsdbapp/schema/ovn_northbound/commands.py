@@ -276,7 +276,7 @@ class AddressSetUpdateAddressesCommand(cmd.BaseCommand):
     def __init__(self, api, address_set, addresses):
         super().__init__(api)
         self.address_set = address_set
-        if not isinstance(addresses, list):
+        if isinstance(addresses, (str, bytes)):
             addresses = [addresses]
         self.addresses = [str(netaddr.IPAddress(address))
                           for address in addresses]
@@ -285,15 +285,15 @@ class AddressSetUpdateAddressesCommand(cmd.BaseCommand):
 class AddressSetAddAddressesCommand(AddressSetUpdateAddressesCommand):
     def run_idl(self, txn):
         address_set = self.api.lookup(self.table_name, self.address_set)
-        address_set.addresses = list(
-            set(address_set.addresses).union(self.addresses))
+        for address in self.addresses:
+            address_set.addvalue('addresses', address)
 
 
 class AddressSetRemoveAddressCommand(AddressSetUpdateAddressesCommand):
     def run_idl(self, txn):
         address_set = self.api.lookup(self.table_name, self.address_set)
-        address_set.addresses = list(
-            set(address_set.addresses).difference(self.addresses))
+        for address in self.addresses:
+            address_set.delvalue('addresses', address)
 
 
 class QoSAddCommand(cmd.AddCommand):
