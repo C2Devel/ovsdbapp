@@ -1486,11 +1486,21 @@ class API(api.API, metaclass=abc.ABCMeta):
 
     @abc.abstractmethod
     def mirror_get(self, uuid):
-        """Get the Mirror entry"""
+        """Get the Mirror entry
+
+        :param uuid:   The name or uuid of the mirror
+        :type uuid:    string or uuid.UUID
+        :returns:      :class:`Command` with RowView result
+        """
 
     @abc.abstractmethod
     def mirror_del(self, mirror):
-        """Delete a Mirror"""
+        """Delete a Mirror
+
+        :param mirror:   The uuid of the mirror
+        :type mirror:    uuid.UUID
+        :returns:        :class:`Command` with no result
+        """
 
     @abc.abstractmethod
     def mirror_add(self, name, mirror_type, index, direction_filter, dest,
@@ -1500,7 +1510,8 @@ class API(api.API, metaclass=abc.ABCMeta):
 
         :param name:    Name of the Mirror to create.
         :type name:     str
-        :param mirror_type:    The type of the mirroring can be gre or erspan.
+        :param mirror_type:    The type of the mirroring can be gre, erspan,
+                               local, lport.
         :type mirror_type:     str
         :param index:   The index filed will be used for the Index field in
                         ERSPAN header as decimal, and as hexadecimal value in
@@ -1508,9 +1519,11 @@ class API(api.API, metaclass=abc.ABCMeta):
                         field.
         :type index:    int
         :param direction_filter:  The direction of the traffic to be mirrored,
-                                  can be from-lport and to-lprt.
+                                  can be from-lport, to-lport or both.
         :type direction_filter:   str
-        :param dest:    The destination IP address of the mirroring.
+        :param dest:    The destination IP address of the mirroring
+                        (gre,erspan), name of the logical port (lport),
+                        OVS interface (local).
         :type dest:     str
 
 
@@ -1522,6 +1535,43 @@ class API(api.API, metaclass=abc.ABCMeta):
                              sink pair already exists.
         :type may_exist:     Optional[bool]
         :returns:            :class:`Command` with RowView result
+        """
+
+    @abc.abstractmethod
+    def mirror_rule_add(self, mirror, priority, match, action,
+                        may_exist=False):
+        """Add a mirror rule selection to given 'lport' mirror.
+
+        :param mirror:    The name or uuid of the mirror.
+        :type mirror:     string or uuid.UUID
+        :param priority:  The priority of the rule.
+        :type priority:   int
+        :param match:     The match for selecting mirrored traffic.
+        :type match:      string
+        :param action:    The rule action can be 'mirror' or 'skip'
+        :type action:     string
+        :param may_exist: If True, update any existing Mirror rule entry
+                          if it already exists.  Default is False which will
+                          raise an error if a Mirror rule entry with same
+                          priority, match pair already exists.
+        :type may_exist:  Optional[bool]
+        :returns:         :class:`Command` with RowView result
+        """
+
+    @abc.abstractmethod
+    def mirror_rule_del(self, mirror, priority=None, match=None,
+                        if_exists=False):
+        """Delete a mirror rule on a mirror.
+
+        :param mirror:    The name or uuid of the mirror.
+        :type mirror:     string or uuid.UUID
+        :param priority:  The priority of the rule.
+        :type priority:   int
+        :param match:     The match for selecting mirrored traffic.
+        :type match:      string
+        :param if_exists: If True, don't fail if the mirror rule doesn't exist
+        :type if_exists:  boolean
+        :returns:         :class:`Command` with RowView result
         """
 
     @abc.abstractmethod
