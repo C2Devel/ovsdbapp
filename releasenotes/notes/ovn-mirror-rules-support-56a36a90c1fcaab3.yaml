@@ -1,0 +1,5 @@
+---
+features:
+  - |
+    Support mirror rules and new mirror type 'lport'.
+    It was added in https://github.com/ovn-org/ovn/commit/3dd8f36b85b3e648bc506839aa62e81b21c41e30
